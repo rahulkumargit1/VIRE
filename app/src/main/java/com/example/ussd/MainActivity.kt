@@ -161,7 +161,7 @@ fun MainShell(vm: UssdViewModel = viewModel()) {
     ) { results ->
         val allGranted = results.values.all { it }
         if (allGranted) vm.loadSims()
-        else vm.uiState.update { UiState.Done(false, "Phone permissions are required to use USSD.\n\nGo to Settings → Apps → Vire → Permissions → Phone → Allow All.") }
+        else vm.setPermissionError()
     }
 
     // Load SIMs on start
@@ -351,9 +351,9 @@ fun PayScreen(vm: UssdViewModel, requestPerms: () -> Unit) {
         Column(Modifier.padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("QUICK ACTIONS", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextTer, letterSpacing = 0.8.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                QuickAction(Icons.Outlined.AccountBalance, "Balance") { showBalanceSheet = true }
-                QuickAction(Icons.Outlined.ListAlt, "Statement") { vm.miniStatement() }
-                QuickAction(Icons.Outlined.AccountCircle, "Link Bank") { vm.linkBankAccount() }
+                QuickAction(Icons.Outlined.AccountBalance, "Balance", Modifier.weight(1f)) { showBalanceSheet = true }
+                QuickAction(Icons.Outlined.ListAlt, "Statement", Modifier.weight(1f)) { vm.miniStatement() }
+                QuickAction(Icons.Outlined.AccountCircle, "Link Bank", Modifier.weight(1f)) { vm.linkBankAccount() }
             }
         }
 
@@ -442,10 +442,9 @@ fun PayScreen(vm: UssdViewModel, requestPerms: () -> Unit) {
 }
 
 @Composable
-fun QuickAction(icon: ImageVector, label: String, onClick: () -> Unit) {
+fun QuickAction(icon: ImageVector, label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Column(
-        Modifier
-            .weight(1f)
+        modifier
             .clip(RoundedCornerShape(12.dp))
             .background(OffWhite)
             .border(1.dp, Stroke, RoundedCornerShape(12.dp))
@@ -496,7 +495,7 @@ fun VireField(
                 unfocusedTextColor = TextPri,
                 cursorColor = Indigo
             ),
-            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPri)
         )
     }
 }
@@ -582,7 +581,7 @@ fun HistoryScreen(vm: UssdViewModel) {
             }
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(horizontal = 24.dp, bottom = 24.dp),
+                contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(txns, key = { it.id }) { tx ->

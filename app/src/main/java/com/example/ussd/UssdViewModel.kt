@@ -88,6 +88,7 @@ class UssdViewModel(application: Application) : AndroidViewModel(application) {
     fun resetUi() = uiState.update { UiState.Idle }
     fun clearResponse() = lastResponse.update { null }
     fun clearForm() = payForm.update { PayForm() }
+    fun setPermissionError() = uiState.update { UiState.Done(false, "Phone permissions are required.\n\nGo to Settings → Apps → Vire → Permissions → Phone → Allow All.") }
 
     // ── SIM Loading ───────────────────────────────────────────────────────
 
